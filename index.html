@@ -1,0 +1,57 @@
+<script src="/socket.io/socket.io.js"></script>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Pizza Game World</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        body { background: #1a1a2e; color: white; font-family: sans-serif; text-align: center; }
+        .game-card { background: #16213e; padding: 20px; border-radius: 15px; margin: 10px; }
+        .dice { font-size: 80px; margin: 20px; display: inline-block; animation: shake 0.5s; }
+        @keyframes shake { 0% { transform: rotate(0deg); } 50% { transform: rotate(10deg); } }
+        button { background: #e94560; color: white; border: none; padding: 15px 30px; border-radius: 10px; font-size: 18px; }
+    </style>
+</head>
+<body>
+    <h1>Pizza Game World</h1>
+    <div id="login">
+        <input type="password" id="pass" placeholder="Password: Pizza110210"><br>
+        <button onclick="check()">Enter</button>
+    </div>
+    
+    <div id="game" style="display:none;">
+        <div class="game-card">
+            <h3>🎲 အံစာတုန်းဂိမ်း</h3>
+            <div id="dice" class="dice">🎲</div><br>
+            <button onclick="roll()">Roll Dice</button>
+            <p id="status">Waiting for opponent...</p>
+        </div>
+    </div>
+
+    <script>
+        const socket = io();
+        let roomId = "room1"; // အလွယ်ဆုံးအနေနဲ့ room တစ်ခုထဲထားထားပါတယ်
+
+        function check() {
+            if(document.getElementById('pass').value === "Pizza110210") {
+                document.getElementById('login').style.display = 'none';
+                document.getElementById('game').style.display = 'block';
+                socket.emit('join-room', roomId);
+                // Background Music
+                new Audio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3').play();
+            } else { alert("Wrong Password!"); }
+        }
+
+        function roll() {
+            let val = Math.floor(Math.random() * 6) + 1;
+            socket.emit('roll', {roomId, value: val});
+            new Audio('https://www.soundjay.com/buttons/sounds/button-10.mp3').play(); // Click sound
+        }
+
+        socket.on('opponent-rolled', (val) => {
+            document.getElementById('status').innerText = "Opponent rolled: " + val;
+        });
+    </script>
+</body>
+</html>
